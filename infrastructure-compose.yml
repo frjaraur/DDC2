@@ -1,0 +1,305 @@
+version: '2'
+#########################################
+#
+## Required infrastructure on each host
+# - DNS Server
+# - Consul Server
+# - Registrator
+#
+# This working example uses an overlay network for all infrastructure objects, publishing only 
+# needed ports on each docker engine host (ucp-manager, ucp-replica1 and ucp-replica2)
+#########################################
+
+
+services:
+
+###### Servers
+
+#### SERVER0
+    dns-server0:
+        image: frjaraur/docker-simple-unbound
+        container_name: dns-server0
+        ports:
+          - 53:53/udp
+        environment:
+          - "constraint:node==ucp-manager"
+          - DNSENTRIES=ucp-manager.dockerlab.local@10.0.100.10 ucp-replica1.dockerlab.local@10.0.100.11 ucp-replica2.dockerlab.local@10.0.100.12 ucp-node1.dockerlab.local@10.0.100.13 ucp-node2.dockerlab.local@10.0.100.14
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        networks:
+            infrastructure-net:
+                aliases:
+                    - dns-server0
+        restart: always
+        labels:
+          infrastructure.role: "dns-master"
+
+    consul-server0:
+        image: progrium/consul
+        container_name: consul-server0
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        ports:
+            - 8300:8300
+            - 8301:8301
+            - 8301:8301/udp
+            - 8302:8302
+            - 8302:8302/udp
+            - 8400:8400
+            - 8500:8500
+        environment:
+        - "constraint:node==ucp-manager"
+        command: -ui-dir /ui -server -advertise 10.0.100.10 -bootstrap-expect 3
+        networks:
+            infrastructure-net:
+                aliases:
+                    - consul-server0
+        restart: always
+
+    register-server0:
+        image: gliderlabs/registrator
+        container_name: register-server0
+        depends_on:
+          - consul-server0
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        environment:
+            - "constraint:node==ucp-manager"
+        command: consul://ucp-manager.dockerlab.local:8500
+        networks:
+            infrastructure-net:
+                aliases:
+                    - register-server0
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+        restart: always
+
+#### SERVER1
+    dns-server1:
+        image: frjaraur/docker-simple-unbound
+        container_name: dns-server1
+        ports:
+          - 53:53/udp
+        environment:
+          - "constraint:node==ucp-replica1"
+          - DNSENTRIES=ucp-manager.dockerlab.local@10.0.100.10 ucp-replica1.dockerlab.local@10.0.100.11 ucp-replica2.dockerlab.local@10.0.100.12 ucp-node1.dockerlab.local@10.0.100.13 ucp-node2.dockerlab.local@10.0.100.14
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        networks:
+            infrastructure-net:
+                aliases:
+                    - dns-server1
+        restart: always
+        labels:
+          infrastructure.role: "dns-replica"
+
+    consul-server1:
+        image: progrium/consul
+        container_name: consul-server1
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        ports:
+            - 8300:8300
+            - 8301:8301
+            - 8301:8301/udp
+            - 8302:8302
+            - 8302:8302/udp
+            - 8400:8400
+            - 8500:8500
+        environment:
+        - "constraint:node==ucp-replica1"
+        command: -ui-dir /ui -server -join ucp-manager.dockerlab.local -advertise 10.0.100.11 -bootstrap-expect 3
+        networks:
+            infrastructure-net:
+                aliases:
+                    - consul-server1
+        restart: always
+
+    register-server1:
+        image: gliderlabs/registrator
+        container_name: register-server1
+        depends_on:
+          - consul-server1
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        environment:
+            - "constraint:node==ucp-replica1"
+        command: consul://ucp-replica1.dockerlab.local:8500
+        networks:
+            infrastructure-net:
+                aliases:
+                    - register-server1
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+        restart: always
+
+#### SERVER2
+    dns-server2:
+        image: frjaraur/docker-simple-unbound
+        container_name: dns-server2
+        ports:
+          - 53:53/udp
+        environment:
+          - "constraint:node==ucp-replica2"
+          - DNSENTRIES=ucp-manager.dockerlab.local@10.0.100.10 ucp-replica1.dockerlab.local@10.0.100.11 ucp-replica2.dockerlab.local@10.0.100.12 ucp-node1.dockerlab.local@10.0.100.13 ucp-node2.dockerlab.local@10.0.100.14
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        networks:
+            infrastructure-net:
+                aliases:
+                    - dns-server2
+        restart: always
+        labels:
+          infrastructure.role: "dns-replica"
+
+    consul-server2:
+        image: progrium/consul
+        container_name: consul-server2
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        ports:
+            - 8300:8300
+            - 8301:8301
+            - 8301:8301/udp
+            - 8302:8302
+            - 8302:8302/udp
+            - 8400:8400
+            - 8500:8500
+        environment:
+        - "constraint:node==ucp-replica2"
+        command: -ui-dir /ui -server -join ucp-manager.dockerlab.local -advertise 10.0.100.12 -bootstrap-expect 3
+        networks:
+            infrastructure-net:
+                aliases:
+                    - consul-server2
+        restart: always
+
+    register-server2:
+        image: gliderlabs/registrator
+        container_name: register-server2
+        depends_on:
+          - consul-server2
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        environment:
+            - "constraint:node==ucp-replica2"
+        command: consul://ucp-replica1.dockerlab.local:8500
+        networks:
+            infrastructure-net:
+                aliases:
+                    - register-server2
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+        restart: always
+
+
+#### AGENT1
+    consul-agent1:
+        image: progrium/consul
+        container_name: consul-agent1
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        ports:
+            - 8300:8300
+            - 8301:8301
+            - 8301:8301/udp
+            - 8302:8302
+            - 8302:8302/udp
+            - 8400:8400
+            - 8500:8500
+        environment:
+        - "constraint:node==ucp-node1"
+        command: -ui-dir /ui -join ucp-manager.dockerlab.local -join ucp-replica1.dockerlab.local -join ucp-replica2.dockerlab.local -advertise 10.0.100.13
+        networks:
+            infrastructure-net:
+                aliases:
+                    - consul-agent1
+        restart: always
+
+    register-agent1:
+        image: gliderlabs/registrator
+        container_name: register-agent1
+        depends_on:
+          - consul-agent1
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        environment:
+            - "constraint:node==ucp-node1"
+        command: consul://ucp-node1.dockerlab.local:8500
+        networks:
+            infrastructure-net:
+                aliases:
+                    - register-agent1
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+        restart: always
+
+#### AGENT2
+    consul-agent2:
+        image: progrium/consul
+        container_name: consul-agent2
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        ports:
+            - 8300:8300
+            - 8301:8301
+            - 8301:8301/udp
+            - 8302:8302
+            - 8302:8302/udp
+            - 8400:8400
+            - 8500:8500
+        environment:
+        - "constraint:node==ucp-node2"
+        command: -ui-dir /ui -join ucp-manager.dockerlab.local -join ucp-replica1.dockerlab.local -join ucp-replica2.dockerlab.local -advertise 10.0.100.14
+        networks:
+            infrastructure-net:
+                aliases:
+                    - consul-agent2
+        restart: always
+
+    register-agent2:
+        image: gliderlabs/registrator
+        container_name: register-agent2
+        depends_on:
+          - consul-agent2
+        dns:
+          - 10.0.100.10
+          - 10.0.100.11
+          - 10.0.100.12
+        environment:
+            - "constraint:node==ucp-node2"
+        command: consul://ucp-node2.dockerlab.local:8500
+        networks:
+            infrastructure-net:
+                aliases:
+                    - register-agent2
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+        restart: always
+
+networks:
+    infrastructure-net:
