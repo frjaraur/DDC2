@@ -21,5 +21,8 @@ licenses mut be included in "licenses" dir ....
 └── Vagrantfile
 
 
+Usage is quite simple.... use ucp-client (X client) to connect to your deployed UCP on https://10.0.100.10:8443 (default configuration specifiec on config.yml)
 
-**** Always remove "tmp_deploying_stage" before a clean "vagrant up", for example if reseting environment with "vagrant destroy -f",
+make create 
+
+make destroy
