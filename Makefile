@@ -8,11 +8,11 @@ recreate:
 	make destroy create
 
 stop:
-	vboxmanage controlvm ucp-node1 poweroff
-	vboxmanage controlvm ucp-node2 poweroff
-	vboxmanage controlvm ucp-replica1 poweroff
-	vboxmanage controlvm ucp-replica2 poweroff
-	vboxmanage controlvm ucp-manager poweroff
+	@vboxmanage controlvm ucp-node1 poweroff 2>/dev/null || true
+	@vboxmanage controlvm ucp-node2 poweroff 2>/dev/null || true
+	@vboxmanage controlvm ucp-replica1 poweroff 2>/dev/null || true
+	@vboxmanage controlvm ucp-replica2 poweroff 2>/dev/null || true
+	@vboxmanage controlvm ucp-manager poweroff 2>/dev/null || true
 
 start:
 	vboxmanage startvm ucp-manager --type headless

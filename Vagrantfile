@@ -33,6 +33,14 @@ Vagrant.configure(2) do |config|
         v.name = node['name']
         v.customize ["modifyvm", :id, "--memory", node['mem']]
         v.customize ["modifyvm", :id, "--cpus", node['cpu']]
+        v.customize ["modifyvm", :id, "--nictype1", "Am79C973"]
+        v.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+        v.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+        v.customize ["modifyvm", :id, "--nictype4", "Am79C973"]
+        v.customize ["modifyvm", :id, "--nicpromisc1", "allow-all"]
+        v.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+        v.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+        v.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
         if node['ucprole'] == "client"
          v.gui = true
        end
