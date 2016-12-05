@@ -8,6 +8,7 @@ recreate:
 	make destroy create
 
 stop:
+	@vboxmanage controlvm ucp-client poweroff 2>/dev/null || true
 	@vboxmanage controlvm ucp-node1 poweroff 2>/dev/null || true
 	@vboxmanage controlvm ucp-node2 poweroff 2>/dev/null || true
 	@vboxmanage controlvm ucp-replica1 poweroff 2>/dev/null || true
@@ -22,6 +23,7 @@ start:
 	sleep 120
 	vboxmanage startvm ucp-node1 --type headless
 	vboxmanage startvm ucp-node2 --type headless
+	vboxmanage startvm ucp-client 
 
 status:
 	vagrant status	

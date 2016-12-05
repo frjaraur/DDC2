@@ -58,6 +58,9 @@ Vagrant.configure(2) do |config|
       ip: node['storageip'],
       virtualbox__intnet: "DOCKER_STORAGE"
 
+      config.vm.network "public_network",
+      bridge: ["enp4s0","wlp3s0","enp3s0f1","wlp2s0"],
+      auto_config: true
 
       if node['ucprole'] == "master"
         puts '--------------------------------'
