@@ -131,7 +131,10 @@ case ${ucprole} in
 		echo "Client install"
 		ucpurl=$(head -1 ${UCP_INFO})
 		mkdir /home/vagrant/bundle
+
 		docker run --rm --name simple-ucp-tools -v /home/vagrant/bundle:/OUTDIR frjaraur/simple-ucp-tools -n ${ucpurl} -u ${ucpuser}  -p ${ucppasswd}
+        sudo chown -R vagrant:vagrant /home/vagrant
+        
 		sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq lxde xinit firefox unzip zip gpm mlocate console-common chromium-browser 
 		sudo service gpm start
 		sudo update-rc.d gpm enable
