@@ -1,11 +1,11 @@
 environment:
    domain: "dockerlab.local"
    #dtrurl: "https://dtr.dockerlab.local:7443"
-   dtrurl: "https://10.0.100.13:7443"
    ucpip: "10.0.100.10"
    ucpuser: "admin"
    ucppasswd: "changeme"
    ucpurl:  "https://10.0.100.10:8443"
+   dtrurl: "https://10.0.100.10:7443"
    ucpfqdn: "ucp.dockerlab.local"
    dtrfqdn: "dtr.dockerlab.local"
 
@@ -14,9 +14,10 @@ boxes:
   fqdn: "ucp-manager.dockerlab.local"
   managementip: "10.0.100.10"
   storageip: "192.168.100.10"
-  mem: "3072"
+  mem: "5000"
   cpu: "1"
   ucprole: "master"
+  dtr:  true
 
 
 #- name: "ucp-replica1"
@@ -42,15 +43,14 @@ boxes:
   mem: "2048"
   cpu: "1"
   ucprole: "node"
-  dtr:  true
 
-- name: "ucp-node2"
-  fqdn: "ucp-node2.dockerlab.local"
-  managementip: "10.0.100.14"
-  storageip: "192.168.100.14"
-  mem: "2048"
-  cpu: "1"
-  ucprole: "node"
+#- name: "ucp-node2"
+#  fqdn: "ucp-node2.dockerlab.local"
+#  managementip: "10.0.100.14"
+#  storageip: "192.168.100.14"
+#  mem: "2048"
+#  cpu: "1"
+#  ucprole: "node"
 
 - name: "ucp-client"
   fqdn: "ucp-client.dockerlab.local"

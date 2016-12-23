@@ -18,9 +18,17 @@ dtrfqdn=config['environment']['dtrfqdn']
 
 boxes = config['boxes']
 
+proxy = config['environment']['proxy']
 
 
 Vagrant.configure(2) do |config|
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    if proxy
+      config.proxy.http     = proxy
+      config.proxy.https     = proxy
+      config.proxy.no_proxy = "localhost,127.0.0.1"
+    end
+  end
   config.vm.box = "ubuntu/trusty64"
   config.vm.synced_folder "tmp_deploying_stage/", "/tmp_deploying_stage",create:true
   config.vm.synced_folder "licenses/", "/licenses",create:true
@@ -90,9 +98,9 @@ Vagrant.configure(2) do |config|
         sudo apt-get update -qq && sudo apt-get -qq install apt-transport-https
         sudo apt-get install -qq linux-image-extra-virtual
         echo "deb https://packages.docker.com/1.12/apt/repo ubuntu-trusty main" | sudo tee /etc/apt/sources.list.d/docker.list
-        sudo apt-get update -qq && sudo apt-get install -qq docker-engine
-	      echo "DOCKER_OPTS='-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'" >> /etc/default/docker
-	      sudo service docker restart
+        sudo apt-get update --force-yes -qq && sudo apt-get install -qq --force-yes docker-engine
+	    echo "DOCKER_OPTS='-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'" >> /etc/default/docker
+	    sudo service docker restart
         sudo usermod -aG docker vagrant
       SHELL
 

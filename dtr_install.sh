@@ -52,6 +52,8 @@ then
 		  --ucp-node ${nodename} \
 		  --dtr-external-url ${dtrurl} \
           --replica-https-port 7443 \
+          --replica-http-port 7444 \
+          --unsafe \
 		  --ucp-username ${ucpuser} --ucp-password ${ucppasswd} \
 		  --ucp-ca "$(cat ${VAGRANT_PROVISION_DIR}/ucp-ca.pem)"
 
