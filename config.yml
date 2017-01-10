@@ -8,6 +8,7 @@ environment:
    dtrurl: "https://10.0.100.10:7443"
    ucpfqdn: "ucp.dockerlab.local"
    dtrfqdn: "dtr.dockerlab.local"
+   proxy: "http://192.168.207.1:8080"
 
 boxes:
 - name: "ucp-manager"
@@ -44,13 +45,13 @@ boxes:
   cpu: "1"
   ucprole: "node"
 
-#- name: "ucp-node2"
-#  fqdn: "ucp-node2.dockerlab.local"
-#  managementip: "10.0.100.14"
-#  storageip: "192.168.100.14"
-#  mem: "2048"
-#  cpu: "1"
-#  ucprole: "node"
+- name: "ucp-node2"
+  fqdn: "ucp-node2.dockerlab.local"
+  managementip: "10.0.100.14"
+  storageip: "192.168.100.14"
+  mem: "2048"
+  cpu: "1"
+  ucprole: "node"
 
 - name: "ucp-client"
   fqdn: "ucp-client.dockerlab.local"
