@@ -1,0 +1,44 @@
+
+REFERENCE:
+
+https://github.com/docker/labs/blob/master/networking/A4-HTTP%20Routing%20Mesh.md
+
+READ NOTE RELATED TO VAGRANT ENVIRONMENT FOR PORT USAGE
+
+1 - First Enable HTTP Routing Mesh
+
+2 - Create 3 services
+
+docker service create \
+--name WHITE \
+--replicas 10 \
+--publish 5001:8080 \
+--network ucp-hrm \
+--label com.docker.ucp.mesh.http="8080=http://white.example.com" \
+--env TITLE=WHITE \
+ehazlett/docker-demo:latest \
+-close-conn
+
+docker service create \
+--name RED \
+--replicas 5 \
+--publish 5002:8080 \
+--network ucp-hrm \
+--label com.docker.ucp.mesh.http="8080=http://red.example.com" \
+--env TITLE=RED \
+ehazlett/docker-demo:latest \
+-close-conn
+
+docker service create \
+--name GREEN \
+--replicas 8 \
+--publish 5003:8080 \
+--network ucp-hrm \
+--label com.docker.ucp.mesh.http="8080=http://green.example.com" \
+--env TITLE=GREEN \
+ehazlett/docker-demo:latest \
+-close-conn
+
+3 - Access UCP-MANAGER on port 80 (in fact any node will be fine, but for this demo we will use ucp-manager).
+    ****  Notice that Vagrant have redirected port 80 to 18080
+

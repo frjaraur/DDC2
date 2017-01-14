@@ -20,12 +20,25 @@ boxes = config['boxes']
 
 proxy = config['environment']['proxy']
 
+domain = config['environment']['domain']
+
+boxes_hostsfile_entries=""
+
+boxes.each do |box|
+    boxes_hostsfile_entries=boxes_hostsfile_entries + box['managementip'] + ' ' +  box['name'] + ' ' + box['name']+'.'+domain+'\n'
+end
+
+update_hosts = <<SCRIPT
+    echo "127.0.0.1 localhost" >/etc/hosts
+    echo -e "#{boxes_hostsfile_entries}" |tee -a /etc/hosts
+SCRIPT
+
 
 Vagrant.configure(2) do |config|
   if Vagrant.has_plugin?("vagrant-proxyconf")
     if proxy
-      config.proxy.http     = proxy
-      config.proxy.https     = proxy
+      config.proxy.http = proxy
+      config.proxy.https = proxy
       config.proxy.no_proxy = "localhost,127.0.0.1"
     end
   end
@@ -80,42 +93,39 @@ Vagrant.configure(2) do |config|
         puts '--------------------------------'
 
     	  config.vm.network "forwarded_port", guest: 8443, host: 8443, auto_correct: true
+          puts '- HTTP Routing Mesh -----------------------------------'
+          puts 'UCP-MANAGER PORT 80 is redirected to 18080 if available'
+          puts '-------------------------------------------------------'
+    	  config.vm.network "forwarded_port", guest: 80, host: 18080, auto_correct: true
         ucpcontrollerip=node['managementip']
       end
+
 
       config.vm.network "forwarded_port", guest: 6080, host: 6080, auto_correct: true
       config.vm.network "forwarded_port", guest: 7080, host: 7080, auto_correct: true
       config.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true
+      config.vm.network "forwarded_port", guest: 9080, host: 9080, auto_correct: true
 
       config.vm.provision "shell", inline: <<-SHELL
-        sudo apt-get update -qq && apt-get install -qq chrony && timedatectl set-timezone Europe/Madrid
+        apt-get update -qq && apt-get install -qq --no-install-recommends chrony && timedatectl set-timezone Europe/Madrid
       SHELL
 
       ## INSTALL DOCKER ENGINE
       config.vm.provision "shell", inline: <<-SHELL
-        sudo apt-get install -qq curl
-        curl -s 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | sudo apt-key add --import
-        sudo apt-get update -qq && sudo apt-get -qq install apt-transport-https
-        sudo apt-get install -qq linux-image-extra-virtual
-        echo "deb https://packages.docker.com/1.12/apt/repo ubuntu-trusty main" | sudo tee /etc/apt/sources.list.d/docker.list
-        sudo apt-get update --force-yes -qq && sudo apt-get install -qq --force-yes docker-engine
+        apt-get install -qq curl
+        curl -s 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | apt-key add --import
+        apt-get update -qq && apt-get -qq install --no-install-recommends apt-transport-https linux-image-extra-virtual
+        echo "deb https://packages.docker.com/1.12/apt/repo ubuntu-trusty main" | tee /etc/apt/sources.list.d/docker.list
+        apt-get update --force-yes -qq && apt-get install -qq --force-yes --no-install-recommends docker-engine
 	    echo "DOCKER_OPTS='-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'" >> /etc/default/docker
-	    sudo service docker restart
-        sudo usermod -aG docker vagrant
+	    service docker restart
+        usermod -aG docker vagrant
       SHELL
 
       ## ADD HOSTS
-      config.vm.provision "shell", inline: <<-SHELL
-        echo "10.0.100.10 ucp ucp.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.13 dtr dtr.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.10 ucp-manager ucp-manager.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.11 ucp-replica1 ucp-replica1.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.12 ucp-replica2 ucp-replica2.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.13 ucp-node1 ucp-node1.dockerlab.local" >>/etc/hosts
-        echo "10.0.100.14 ucp-node2 ucp-node2.dockerlab.local" >>/etc/hosts
-      SHELL
-
-
+      #
+      config.vm.provision :shell, :inline => update_hosts
+      
       puts '--------------------------------'
       puts 'NODENAME: ['+node['name']+']'
       puts 'UCPROLE: ['+node['ucprole']+']'
