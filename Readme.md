@@ -1,8 +1,7 @@
 DDC2 Deployment
 
-**license file must be included in 'licenses' dir**
+**license file must be included under 'licenses' dir as _'docker_subscription.lic'_**
 
-.
 
 ├── config.yml
 
