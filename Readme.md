@@ -1,6 +1,6 @@
 DDC2 Deployment
 
-licenses mut be included in "licenses" dir ....
+**license file must be included in 'licenses' dir**
 
 .
 
