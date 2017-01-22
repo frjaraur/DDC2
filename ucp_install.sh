@@ -54,7 +54,7 @@ case ${ucprole} in
                 echo "manager.token $(docker swarm join-token manager -q )" >> ${UCP_INFO}
                 echo "worker.token $(docker swarm join-token worker -q )" >> ${UCP_INFO}
 				touch ${UCP_NODE_PROVISIONED}
-                
+
 			fi
 		fi
 
@@ -134,8 +134,8 @@ case ${ucprole} in
 
 		docker run --rm --name simple-ucp-tools -v /home/vagrant/bundle:/OUTDIR frjaraur/simple-ucp-tools -n ${ucpurl} -u ${ucpuser}  -p ${ucppasswd}
         sudo chown -R vagrant:vagrant /home/vagrant
-        
-		sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq lxde xinit firefox unzip zip gpm mlocate console-common chromium-browser 
+
+		sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq lxde xinit firefox unzip zip gpm mlocate console-common chromium-browser
 		sudo service gpm start
 		sudo update-rc.d gpm enable
 		sudo localectl set-x11-keymap es
@@ -145,6 +145,16 @@ case ${ucprole} in
 		echo -e "XKBLAYOUT=\"es\"\nXKBMODEL=\"pc105\"\nXKBVARIANT=\"\"\nXKBOPTIONS=\"lv3:ralt_switch,terminate:ctrl_alt_bksp\"" >/etc/default/keyboard
 		echo '@setxkbmap -option lv3:ralt_switch,terminate:ctrl_alt_bksp "es"' | sudo tee -a /etc/xdg/lxsession/LXDE/autostart
 		echo '@setxkbmap -layout "es"'|sudo tee -a /etc/xdg/lxsession/LXDE/autostart
+
+
+    #################
+    # We are using 10.0.100.10 as DTR because DNS isn't set and Certificate isn't valid for dtr.domainname
+    #
+    ###
+    # Notary
+    sudo curl -o /usr/local/bin/notary -sSL https://github.com/docker/notary/releases/download/v0.4.3/notary-Linux-amd64 && sudo chmod 755 /usr/local/bin/notary
+    echo -e "alias notary=\"notary -s https://10.0.100.10:7443 -d ~/.docker/trust\"\n" > /home/vagrant/.bash_aliases
+
 	;;
 
 	*)
@@ -152,3 +162,10 @@ case ${ucprole} in
 	;;
 
 esac
+
+
+###
+# We are using 10.0.100.10 as DTR because DNS isn't set and Certificate isn't valid for dtr.domainname
+# DTR CA for all nodes !!!
+curl -o ${VAGRANT_PROVISION_DIR}/getca.sh -sSL https://bitbucket.org/frjaraur/tools/raw/2e1e84e5c787a0dc1f3deb017051010c6c30a02f/getca.sh && chmod 755 ${VAGRANT_PROVISION_DIR}/getca.sh
+${VAGRANT_PROVISION_DIR}/getca.sh -d 10.0.100.10 -p 7443

@@ -6,8 +6,10 @@ require 'yaml'
 
 config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
 
+base_box=config['environment']['base_box']
 
 ucpip=config['environment']['ucpip']
+dtrip=config['environment']['dtrip']
 ucpuser=config['environment']['ucpuser']
 ucppasswd=config['environment']['ucppasswd']
 ucpurl=config['environment']['ucpurl']
@@ -28,6 +30,10 @@ boxes.each do |box|
     boxes_hostsfile_entries=boxes_hostsfile_entries + box['managementip'] + ' ' +  box['name'] + ' ' + box['name']+'.'+domain+'\n'
 end
 
+boxes_hostsfile_entries=boxes_hostsfile_entries + ucpip + ' ' +  ucpfqdn + '\n'
+boxes_hostsfile_entries=boxes_hostsfile_entries + dtrip + ' ' +  dtrfqdn + '\n'
+
+
 update_hosts = <<SCRIPT
     echo "127.0.0.1 localhost" >/etc/hosts
     echo -e "#{boxes_hostsfile_entries}" |tee -a /etc/hosts
@@ -35,6 +41,13 @@ SCRIPT
 
 
 Vagrant.configure(2) do |config|
+  # config.ssh.username = "ubuntu"
+  # config.ssh.password = ""
+  # config.ssh.insert_key = true
+  # config.ssh.forward_agent = true
+  #config.ssh.private_key_path = "~/.ssh/id_rsa"
+  #config.ssh.forward_agent = true
+
   if Vagrant.has_plugin?("vagrant-proxyconf")
     if proxy
       config.proxy.http = proxy
@@ -42,10 +55,12 @@ Vagrant.configure(2) do |config|
       config.proxy.no_proxy = "localhost,127.0.0.1"
     end
   end
-  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.box = base_box
   config.vm.synced_folder "tmp_deploying_stage/", "/tmp_deploying_stage",create:true
   config.vm.synced_folder "licenses/", "/licenses",create:true
   config.vm.synced_folder "src/", "/src",create:true
+
 
 
   boxes.each do |node|
@@ -110,9 +125,9 @@ Vagrant.configure(2) do |config|
         apt-get update -qq && apt-get install -qq --no-install-recommends chrony && timedatectl set-timezone Europe/Madrid
       SHELL
 
-      ## INSTALL DOCKER ENGINE
+      ## INSTALL DOCKER ENGINE ( we added jq for new tooling )
       config.vm.provision "shell", inline: <<-SHELL
-        apt-get install -qq curl
+        apt-get install -qq curl jq
         curl -s 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | apt-key add --import
         apt-get update -qq && apt-get -qq install --no-install-recommends apt-transport-https linux-image-extra-virtual
         echo "deb https://packages.docker.com/1.12/apt/repo ubuntu-trusty main" | tee /etc/apt/sources.list.d/docker.list
@@ -125,7 +140,7 @@ Vagrant.configure(2) do |config|
       ## ADD HOSTS
       #
       config.vm.provision :shell, :inline => update_hosts
-      
+
       puts '--------------------------------'
       puts 'NODENAME: ['+node['name']+']'
       puts 'UCPROLE: ['+node['ucprole']+']'

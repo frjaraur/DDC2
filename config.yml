@@ -1,9 +1,14 @@
 environment:
+   base_box: "ubuntu/trusty64"
    domain: "dockerlab.local"
    #dtrurl: "https://dtr.dockerlab.local:7443"
    ucpip: "10.0.100.10"
+   dtrip: "10.0.100.10"
    ucpuser: "admin"
    ucppasswd: "changeme"
+   # Didn't work as no DNS entries exist for both :|
+   #ucpurl:  "https://ucp.dockerlab.local:8443"
+   #dtrurl: "https://dtr.dockerlab.local:7443"
    ucpurl:  "https://10.0.100.10:8443"
    dtrurl: "https://10.0.100.10:7443"
    ucpfqdn: "ucp.dockerlab.local"
