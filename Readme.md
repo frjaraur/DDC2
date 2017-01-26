@@ -1,8 +1,7 @@
 DDC2 Deployment
 
-licenses mut be included in "licenses" dir ....
+**license file must be included under 'licenses' dir as _'docker_subscription.lic'_**
 
-.
 
 ├── config.yml
 
@@ -23,6 +22,17 @@ licenses mut be included in "licenses" dir ....
 
 Usage is quite simple.... use ucp-client (X client) to connect to your deployed UCP on https://10.0.100.10:8443 (default configuration specifiec on config.yml)
 
-make create 
+**make create**
 
-make destroy
+**make stop**
+
+**make start**
+
+**make destroy**
+
+
+NOTE:
+  User for **ucp-client node is vagrant/vagrant or ubuntu/vagrant**
+  
+  
+  
