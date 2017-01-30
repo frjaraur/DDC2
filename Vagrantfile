@@ -52,7 +52,7 @@ Vagrant.configure(2) do |config|
     if proxy
       config.proxy.http = proxy
       config.proxy.https = proxy
-      config.proxy.no_proxy = "localhost,127.0.0.1"
+      config.proxy.no_proxy = "localhost,127.0.0.1,"+ucpip+","+ucpfqdn+","+ucpfqdn
     end
   end
 
