@@ -40,6 +40,13 @@ update_hosts = <<SCRIPT
     echo -e "#{boxes_hostsfile_entries}" |tee -a /etc/hosts
 SCRIPT
 
+#port should be parametrized 
+update_dtr_ca_on_hosts = <<SCRIPT
+    curl -o /tmp/getca.sh -sSL https://bitbucket.org/frjaraur/tools/raw/2e1e84e5c787a0dc1f3deb017051010c6c30a02f/getca.sh && chmod 755 /tmp/getca.sh
+    /tmp/getca.sh -d #{dtrip}" -p 7443
+    rm -f /tmp/getca.sh
+SCRIPT
+
 
 Vagrant.configure(2) do |config|
   # config.ssh.username = "ubuntu"
@@ -87,6 +94,7 @@ Vagrant.configure(2) do |config|
 
         if node['ucprole'] == "client"
          v.gui = true
+         v.customize ["modifyvm", :id, "--vram", "64"]
        end
       end
 
@@ -183,7 +191,10 @@ Vagrant.configure(2) do |config|
                               dtrurl
                             ]
       end
-
+    ## DTR CA for all nodes !!!
+    ##curl -o ${VAGRANT_PROVISION_DIR}/getca.sh -sSL https://bitbucket.org/frjaraur/tools/raw/2e1e84e5c787a0dc1f3deb017051010c6c30a02f/getca.sh && chmod 755 ${VAGRANT_PROVISION_DIR}/getca.sh
+    ##${VAGRANT_PROVISION_DIR}/getca.sh -d 10.0.100.10 -p 7443
+    #
     end
   end
 end

@@ -167,5 +167,5 @@ esac
 ###
 # We are using 10.0.100.10 as DTR because DNS isn't set and Certificate isn't valid for dtr.domainname
 # DTR CA for all nodes !!!
-curl -o ${VAGRANT_PROVISION_DIR}/getca.sh -sSL https://bitbucket.org/frjaraur/tools/raw/2e1e84e5c787a0dc1f3deb017051010c6c30a02f/getca.sh && chmod 755 ${VAGRANT_PROVISION_DIR}/getca.sh
-${VAGRANT_PROVISION_DIR}/getca.sh -d 10.0.100.10 -p 7443
+#curl -o ${VAGRANT_PROVISION_DIR}/getca.sh -sSL https://bitbucket.org/frjaraur/tools/raw/2e1e84e5c787a0dc1f3deb017051010c6c30a02f/getca.sh && chmod 755 ${VAGRANT_PROVISION_DIR}/getca.sh
+#${VAGRANT_PROVISION_DIR}/getca.sh -d 10.0.100.10 -p 7443

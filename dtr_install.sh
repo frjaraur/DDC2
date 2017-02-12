@@ -35,10 +35,12 @@ then
 	echo "---- DTR INSTALL ----"
 	#echo 	curl -k https://${ucpurl}/ca > ${VAGRANT_PROVISION_DIR}/ucp-ca.pem
 
-	curl -o ${VAGRANT_PROVISION_DIR}/ucp-ca.pem -sSk ${ucpurl}/ca
-	sleep 5
-	cat ${VAGRANT_PROVISION_DIR}/ca.pem
-  #wget -q --no-check-certificate https://10.0.100.10/ca -O -wget -q --no-check-certificate https://10.0.100.10/ca -O - > ${VAGRANT_PROVISION_DIR}/ucp-ca.pem
+	while true
+    do
+        curl -o ${VAGRANT_PROVISION_DIR}/ucp-ca.pem -sSk ${ucpurl}/ca && break
+	    sleep 5
+    done
+	cat ${VAGRANT_PROVISION_DIR}/ucp-ca.pem
 
 	docker run --rm --name simple-ucp-tools -v /tmp_deploying_stage:/OUTDIR frjaraur/simple-ucp-tools -n ${ucpurl}
 
