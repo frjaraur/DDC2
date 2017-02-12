@@ -1,5 +1,6 @@
 environment:
-   base_box: "ubuntu/trusty64"
+   base_box: "frjaraur/xenial64"
+   #base_box_url: "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box"
    domain: "dockerlab.local"
    #dtrurl: "https://dtr.dockerlab.local:7443"
    ucpip: "10.0.100.10"

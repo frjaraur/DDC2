@@ -7,6 +7,7 @@ require 'yaml'
 config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
 
 base_box=config['environment']['base_box']
+base_box_url=config['environment']['base_box_url']
 
 ucpip=config['environment']['ucpip']
 dtrip=config['environment']['dtrip']
@@ -57,6 +58,10 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.box = base_box
+  if base_box_url
+    config.vm.box_url = base_box_url
+  end
+
   config.vm.synced_folder "tmp_deploying_stage/", "/tmp_deploying_stage",create:true
   config.vm.synced_folder "licenses/", "/licenses",create:true
   config.vm.synced_folder "src/", "/src",create:true
@@ -78,6 +83,8 @@ Vagrant.configure(2) do |config|
         v.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
         v.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
         v.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
         if node['ucprole'] == "client"
          v.gui = true
        end
@@ -130,7 +137,7 @@ Vagrant.configure(2) do |config|
         apt-get install -qq curl jq
         curl -s 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | apt-key add --import
         apt-get update -qq && apt-get -qq install --no-install-recommends apt-transport-https linux-image-extra-virtual
-        echo "deb https://packages.docker.com/1.12/apt/repo ubuntu-trusty main" | tee /etc/apt/sources.list.d/docker.list
+        echo "deb https://packages.docker.com/1.13/apt/repo ubuntu-xenial main" | tee /etc/apt/sources.list.d/docker.list
         apt-get update --force-yes -qq && apt-get install -qq --force-yes --no-install-recommends docker-engine
 	    echo "DOCKER_OPTS='-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'" >> /etc/default/docker
 	    service docker restart
